@@ -6,7 +6,7 @@ fcache
 Description
 -----------
 
-Simple object cache for PHP.
+File-based object cache for PHP.
 
 Installation
 ------------
