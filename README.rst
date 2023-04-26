@@ -28,7 +28,8 @@ Examples
    $entry = $cache->get('example');
 
    if ($entry === null) {
-       $cache->set('example', new \ArrayIterator([]));
+       $entry = new \ArrayIterator(range(0, 10));
+       $cache->set('example', $entry);
    }
 
    ...
