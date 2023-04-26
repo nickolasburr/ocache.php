@@ -64,19 +64,17 @@ final class Cache
      */
     private function initialize(): void
     {
-        /** @var int $octal */
-        $octal = (int) decoct(
-            fileperms($this->cacheDir) & 0777
-        );
+        /** @var int $perms */
+        $perms = fileperms($this->cacheDir) & 0o777;
 
-        if ($octal !== DIR_OCTAL) {
+        if ($perms !== DIR_OCTAL) {
             trigger_error(
                 sprintf(
                     'Fix permissions for cache directory "%s". ' .
                     'Current permissions: "%s"; Required permissions: "%s"',
                     $this->cacheDir,
-                    $octal,
-                    DIR_OCTAL
+                    decoct($perms),
+                    decoct(DIR_OCTAL)
                 ),
                 E_USER_WARNING
             );
