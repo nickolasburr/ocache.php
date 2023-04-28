@@ -1,6 +1,6 @@
 {
-  "name": "nickolasburr/fcache",
-  "description": "Object cache for PHP.",
+  "name": "nickolasburr/vfscache",
+  "description": "VFS object cache for PHP.",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -13,9 +13,13 @@
     "php": "^8.1"
   },
   "autoload": {
-    "files": ["src/functions.php"],
+    "files": [
+        "src/functions.php",
+        "src/Exception/functions.php",
+        "src/Stream/functions.php"
+    ],
     "psr-4": {
-      "Fcache\\": "src"
+      "VfsCache\\": "src/"
     }
   }
 }

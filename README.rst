@@ -1,4 +1,4 @@
-fcache
+vfscache
 ======
 
 .. contents:: :local:
@@ -6,14 +6,14 @@ fcache
 Description
 -----------
 
-File-based object cache for PHP.
+VFS object cache for PHP.
 
 Installation
 ------------
 
 .. code-block:: sh
 
-   composer require nickolasburr/fcache:^1.0
+   composer require nickolasburr/vfscache:^1.0
 
 Examples
 --------
@@ -22,7 +22,7 @@ Examples
 
    ...
 
-   use function Fcache\cache;
+   use function VfsCache\cache;
 
    $cache = cache();
    $entry = $cache->get('example');

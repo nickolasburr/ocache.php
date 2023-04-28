@@ -2,12 +2,12 @@
 /**
  * functions.php
  *
- * @package     Fcache
+ * @package     VfsCache
  * @copyright   Copyright (C) 2023 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
 
-namespace Fcache;
+namespace VfsCache;
 
 use function is_dir;
 use function mkdir;

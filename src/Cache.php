@@ -2,14 +2,16 @@
 /**
  * Cache.php
  *
- * @package     Fcache
+ * @package     VfsCache
  * @copyright   Copyright (C) 2023 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
 
-namespace Fcache;
+namespace VfsCache;
 
+use DateInterval;
 use DirectoryIterator;
+use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -25,6 +27,7 @@ use function fwrite;
 use function hash;
 use function implode;
 use function is_file;
+use function is_object;
 use function serialize;
 use function sprintf;
 use function unlink;
@@ -32,11 +35,12 @@ use function unserialize;
 
 use const DIRECTORY_SEPARATOR;
 use const E_USER_WARNING;
-use const Fcache\CACHE_DIR;
-use const Fcache\DIR_OCTAL;
-use const Fcache\MAX_BYTES;
-use const Fcache\READ_ONLY;
-use const Fcache\WRITE_ONLY;
+use const VfsCache\CACHE_DIR;
+use const VfsCache\DIR_OCTAL;
+use const VfsCache\MAX_BYTES;
+use const VfsCache\READ_ONLY;
+use const VfsCache\WRITE_ONLY;
+use const VfsCache\Exception\E_TYPE;
 
 final class Cache
 {
@@ -70,7 +74,7 @@ final class Cache
         if ($perms !== DIR_OCTAL) {
             trigger_error(
                 sprintf(
-                    'Fix permissions for cache directory "%s". ' .
+                    'Fix permissions for VFS cache directory "%s". ' .
                     'Current permissions: "%s"; Required permissions: "%s"',
                     $this->cacheDir,
                     decoct($perms),
@@ -99,10 +103,18 @@ final class Cache
 
     /**
      * @param string $key
+     * @param object|null $default
      * @return object|null
+     * @throws InvalidArgumentException
      */
-    public function get(string $key): ?object
-    {
+    public function get(
+        string $key,
+        $default = null
+    ): ?object {
+        if ($default !== null && !is_object($default)) {
+            throw new InvalidArgumentException(E_TYPE);
+        }
+
         try {
             /** @var string $file */
             $file = sprintf(
@@ -116,19 +128,27 @@ final class Cache
             $object ??= $this->import($file);
             return $object;
         } catch (Throwable) {
-            return null;
+            return $default;
         }
     }
 
     /**
      * @param string $key
      * @param object|null $value
-     * @return static
+     * @param int|DateInterval|null $ttl
+     * @return bool
+     * @throws InvalidArgumentException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function set(
         string $key,
-        ?object $value = null
-    ): static {
+        $value = null,
+        int|DateInterval|null $ttl = null
+    ): bool {
+        if ($value !== null && !is_object($value)) {
+            throw new InvalidArgumentException(E_TYPE);
+        }
+
         try {
             /** @var string $file */
             $file = sprintf(
@@ -139,8 +159,9 @@ final class Cache
 
             $this->export($file, $value);
             $this->cache[$file] = $value;
-        } finally {
-            return $this;
+            return true;
+        } catch (Throwable) {
+            return false;
         }
     }
 
