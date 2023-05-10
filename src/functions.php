@@ -12,9 +12,8 @@ namespace VfsCache;
 use function is_dir;
 use function mkdir;
 
-const CACHE_DIR = '/tmp/.fcache';
+const CACHE_DIR = '/tmp/.vfscache';
 const DIR_OCTAL = 0o700;
-const MAX_BYTES = 1024;
 const READ_ONLY = 'r';
 const WRITE_ONLY = 'w';
 
@@ -23,9 +22,15 @@ const WRITE_ONLY = 'w';
  * @return Cache
  */
 function cache(string $cacheDir = CACHE_DIR): Cache {
+    static $caches;
+    $caches ??= [];
+
     if (!is_dir($cacheDir)) {
         mkdir($cacheDir, DIR_OCTAL);
     }
 
-    return new Cache($cacheDir);
+    /** @var Cache|null $cache */
+    $cache =& $caches[$cacheDir];
+    $cache ??= new Cache($cacheDir);
+    return $cache;
 }
