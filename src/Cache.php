@@ -15,30 +15,25 @@ use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
 
 use function decoct;
 use function fclose;
-use function feof;
 use function fileperms;
 use function fopen;
-use function fread;
 use function fwrite;
 use function hash;
 use function implode;
 use function is_file;
 use function is_object;
-use function serialize;
 use function sprintf;
 use function unlink;
-use function unserialize;
 
 use const DIRECTORY_SEPARATOR;
 use const E_USER_WARNING;
 use const VfsCache\CACHE_DIR;
 use const VfsCache\DIR_OCTAL;
-use const VfsCache\MAX_BYTES;
-use const VfsCache\READ_ONLY;
 use const VfsCache\WRITE_ONLY;
 use const VfsCache\Exception\E_TYPE;
 
@@ -51,14 +46,12 @@ final class Cache
      * @param string $cacheDir
      * @param string $fileType
      * @param string $hashAlgo
-     * @param int $maxBytes
      * @return void
      */
     public function __construct(
         private readonly string $cacheDir = CACHE_DIR,
-        private readonly string $fileType = 'fcache',
-        private readonly string $hashAlgo = 'crc32b',
-        private readonly int $maxBytes = MAX_BYTES
+        private readonly string $fileType = 'php',
+        private readonly string $hashAlgo = 'crc32b'
     ) {
         $this->initialize();
     }
@@ -89,8 +82,7 @@ final class Cache
             new RecursiveDirectoryIterator(
                 $this->cacheDir,
                 RecursiveDirectoryIterator::SKIP_DOTS
-            ),
-            RecursiveIteratorIterator::CHILD_FIRST
+            )
         );
 
         /** @var DirectoryIterator $inode */
@@ -134,6 +126,30 @@ final class Cache
 
     /**
      * @param string $key
+     * @return bool
+     */
+    public function has(string $key): bool
+    {
+        /** @var string $file */
+        $file = sprintf(
+            '%s.%s',
+            hash($this->hashAlgo, $key),
+            $this->fileType
+        );
+
+        /** @var string $filePath */
+        $filePath = implode(
+            DIRECTORY_SEPARATOR,
+            [
+                $this->cacheDir,
+                $file,
+            ]
+        );
+        return is_file($filePath);
+    }
+
+    /**
+     * @param string $key
      * @param object|null $value
      * @param int|DateInterval|null $ttl
      * @return bool
@@ -156,7 +172,6 @@ final class Cache
                 hash($this->hashAlgo, $key),
                 $this->fileType
             );
-
             $this->export($file, $value);
             $this->cache[$file] = $value;
             return true;
@@ -217,7 +232,7 @@ final class Cache
         }
 
         /** @var string|null $export */
-        $export = serialize($value);
+        $export = $this->getVarExport($value);
 
         /** @var int|false $result */
         $result = fwrite($handle, $export);
@@ -250,39 +265,8 @@ final class Cache
                 $file,
             ]
         );
-
-        if (!is_file($filePath)) {
-            return null;
-        }
-
-        /** @var resource|false $handle */
-        $handle = fopen($filePath, READ_ONLY);
-
-        if ($handle === false) {
-            throw new RuntimeException(
-                sprintf(
-                    'Unable to import object file "%s"',
-                    $filePath
-                )
-            );
-        }
-
-        /** @var string $result */
-        $result = '';
-
-        while (!feof($handle)) {
-            /** @var string|false $data */
-            $data = fread($handle, $this->maxBytes);
-
-            if ($data === false) {
-                break;
-            }
-
-            $result .= $data;
-        }
-
-        fclose($handle);
-        return unserialize($result);
+        return is_file($filePath)
+            ? include $filePath : null;
     }
 
     /**
@@ -300,5 +284,18 @@ final class Cache
             ]
         );
         return unlink($filePath);
+    }
+
+    /**
+     * @param mixed $value
+     * @return string
+     */
+    private function getVarExport(mixed $value): string
+    {
+        /** @var string $export */
+        $export = VarExporter::export($value);
+        return <<<EOS
+<?php return $export;
+EOS;
     }
 }
