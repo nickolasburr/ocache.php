@@ -14,7 +14,9 @@ use function mkdir;
 
 const CACHE_DIR = '/tmp/.vfscache';
 const DIR_OCTAL = 0o700;
+const MAX_BYTES = 1024;
 const READ_ONLY = 'r';
+const WRITE_BINARY = 'wb';
 const WRITE_ONLY = 'w';
 
 /**

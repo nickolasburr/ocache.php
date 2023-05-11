@@ -28,6 +28,8 @@ use function implode;
 use function is_file;
 use function is_object;
 use function sprintf;
+use function strlen;
+use function substr;
 use function unlink;
 
 use const DIRECTORY_SEPARATOR;
@@ -220,7 +222,7 @@ final class Cache
         );
 
         /** @var resource|false $handle */
-        $handle = fopen($filePath, WRITE_ONLY);
+        $handle = fopen($filePath, WRITE_BINARY);
 
         if ($handle === false) {
             throw new RuntimeException(
@@ -234,17 +236,31 @@ final class Cache
         /** @var string|null $export */
         $export = $this->getVarExport($value);
 
-        /** @var int|false $result */
-        $result = fwrite($handle, $export);
+        /** @var int $index */
+        $index = 0;
 
-        if ($result === false) {
-            throw new RuntimeException(
-                sprintf(
-                    'Unable to export object file "%s"',
-                    $filePath
-                )
+        /** @var int $length */
+        $length = strlen($export);
+
+        do {
+            /** @var int|false $result */
+            $result = fwrite(
+                $handle,
+                substr($export, $index, MAX_BYTES),
+                MAX_BYTES
             );
-        }
+
+            if ($result === false) {
+                throw new RuntimeException(
+                    sprintf(
+                        'Unable to export object file "%s"',
+                        $filePath
+                    )
+                );
+            }
+
+            $index += $result;
+        } while ($index < $length);
 
         fclose($handle);
         return $export;
