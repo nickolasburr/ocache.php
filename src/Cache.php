@@ -10,11 +10,11 @@ declare(strict_types=1);
 namespace VfsCache;
 
 use DateInterval;
-use DirectoryIterator;
 use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
 
@@ -27,9 +27,9 @@ use function hash;
 use function implode;
 use function is_file;
 use function is_object;
+use function mb_strlen;
+use function mb_substr;
 use function sprintf;
-use function strlen;
-use function substr;
 use function unlink;
 
 use const DIRECTORY_SEPARATOR;
@@ -41,6 +41,8 @@ use const VfsCache\Exception\E_TYPE;
 
 final class Cache
 {
+    private const TMPL = '%s.%s';
+
     /** @var mixed[] $cache */
     private array $cache = [];
 
@@ -87,10 +89,10 @@ final class Cache
             )
         );
 
-        /** @var DirectoryIterator $inode */
-        foreach ($iterator as $inode) {
+        /** @var SplFileInfo $node */
+        foreach ($iterator as $node) {
             /** @var string $file */
-            $file = $inode->getFilename();
+            $file = $node->getFilename();
             $this->cache[$file] = $this->import($file);
         }
     }
@@ -112,7 +114,7 @@ final class Cache
         try {
             /** @var string $file */
             $file = sprintf(
-                '%s.%s',
+                self::TMPL,
                 hash($this->hashAlgo, $key),
                 $this->fileType
             );
@@ -134,7 +136,7 @@ final class Cache
     {
         /** @var string $file */
         $file = sprintf(
-            '%s.%s',
+            self::TMPL,
             hash($this->hashAlgo, $key),
             $this->fileType
         );
@@ -170,7 +172,7 @@ final class Cache
         try {
             /** @var string $file */
             $file = sprintf(
-                '%s.%s',
+                self::TMPL,
                 hash($this->hashAlgo, $key),
                 $this->fileType
             );
@@ -190,7 +192,7 @@ final class Cache
     {
         /** @var string $file */
         $file = sprintf(
-            '%s.%s',
+            self::TMPL,
             hash($this->hashAlgo, $key),
             $this->fileType
         );
@@ -240,13 +242,17 @@ final class Cache
         $index = 0;
 
         /** @var int $length */
-        $length = strlen($export);
+        $length = mb_strlen($export);
 
         do {
             /** @var int|false $result */
             $result = fwrite(
                 $handle,
-                substr($export, $index, MAX_BYTES),
+                mb_substr(
+                    $export,
+                    $index,
+                    MAX_BYTES
+                ),
                 MAX_BYTES
             );
 
