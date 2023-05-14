@@ -10,14 +10,16 @@ declare(strict_types=1);
 namespace VfsCache;
 
 use DateInterval;
-use InvalidArgumentException;
+use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
+use VfsCache\Exception\InvalidArgumentException;
 
+use function array_keys;
 use function decoct;
 use function fclose;
 use function fileperms;
@@ -34,12 +36,9 @@ use function unlink;
 
 use const DIRECTORY_SEPARATOR;
 use const E_USER_WARNING;
-use const VfsCache\CACHE_DIR;
-use const VfsCache\DIR_OCTAL;
-use const VfsCache\WRITE_ONLY;
 use const VfsCache\Exception\E_TYPE;
 
-final class Cache
+final class Cache implements CacheInterface
 {
     private const TMPL = '%s.%s';
 
@@ -98,10 +97,7 @@ final class Cache
     }
 
     /**
-     * @param string $key
-     * @param object|null $default
-     * @return object|null
-     * @throws InvalidArgumentException
+     * {@inheritdoc}
      */
     public function get(
         string $key,
@@ -129,8 +125,7 @@ final class Cache
     }
 
     /**
-     * @param string $key
-     * @return bool
+     * {@inheritdoc}
      */
     public function has(string $key): bool
     {
@@ -153,11 +148,7 @@ final class Cache
     }
 
     /**
-     * @param string $key
-     * @param object|null $value
-     * @param int|DateInterval|null $ttl
-     * @return bool
-     * @throws InvalidArgumentException
+     * {@inheritdoc}
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function set(
@@ -185,10 +176,9 @@ final class Cache
     }
 
     /**
-     * @param string $key
-     * @return bool
+     * {@inheritdoc}
      */
-    public function purge(string $key): bool
+    public function delete(string $key): bool
     {
         /** @var string $file */
         $file = sprintf(
@@ -198,7 +188,75 @@ final class Cache
         );
 
         if (isset($this->cache[$file])) {
-            $this->delete($file);
+            $this->unlink($file);
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear(): bool
+    {
+        /** @var string[] $files */
+        $files = array_keys($this->cache);
+
+        /** @var string $file */
+        foreach ($files as $file) {
+            $this->unlink($file);
+        }
+
+        $this->cache = [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMultiple(
+        iterable $keys,
+        $default = null
+    ): iterable {
+        if ($default !== null && !is_object($default)) {
+            throw new InvalidArgumentException(E_TYPE);
+        }
+
+        /** @var mixed[] $result */
+        $result = [];
+
+        /** @var string $key */
+        foreach ($keys as $key) {
+            $result[] = $this->get($key, $default);
+        }
+
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function setMultiple(
+        iterable $values,
+        int|DateInterval|null $ttl = null
+    ): bool {
+        /** @var string $key */
+        /** @var mixed $value */
+        foreach ($values as $key => $value) {
+            $this->set($key, $value);
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteMultiple(iterable $keys): bool
+    {
+        /** @var string $key */
+        foreach ($keys as $key) {
+            $this->delete($key);
         }
 
         return true;
@@ -295,7 +353,7 @@ final class Cache
      * @param string $file
      * @return bool
      */
-    private function delete(string $file): bool
+    private function unlink(string $file): bool
     {
         /** @var string $filePath */
         $filePath = implode(
