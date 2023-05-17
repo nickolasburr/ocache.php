@@ -18,6 +18,8 @@ use SplFileInfo;
 use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
 use VfsCache\Exception\InvalidArgumentException;
+use VfsCache\Stream\Filter;
+use VfsCache\Stream\FilterRegistry;
 
 use function array_keys;
 use function decoct;
@@ -33,9 +35,11 @@ use function mb_strlen;
 use function mb_substr;
 use function sprintf;
 use function unlink;
+use function VfsCache\Stream\filterRegistry;
 
 use const DIRECTORY_SEPARATOR;
 use const E_USER_WARNING;
+use const STREAM_FILTER_WRITE;
 use const VfsCache\Exception\E_TYPE;
 
 final class Cache implements CacheInterface
@@ -44,6 +48,9 @@ final class Cache implements CacheInterface
 
     /** @var mixed[] $cache */
     private array $cache = [];
+
+    /** @var FilterRegistry $filterRegistry */
+    private readonly FilterRegistry $filterRegistry;
 
     /**
      * @param string $cacheDir
@@ -56,6 +63,7 @@ final class Cache implements CacheInterface
         private readonly string $fileType = 'php',
         private readonly string $hashAlgo = 'crc32b'
     ) {
+        $this->filterRegistry = filterRegistry();
         $this->initialize();
     }
 
@@ -208,6 +216,7 @@ final class Cache implements CacheInterface
         }
 
         $this->cache = [];
+        return true;
     }
 
     /**
@@ -293,6 +302,12 @@ final class Cache implements CacheInterface
             );
         }
 
+        $this->filterRegistry->append(
+            Filter::FILTER_NAME,
+            $handle,
+            STREAM_FILTER_WRITE
+        );
+
         /** @var string|null $export */
         $export = $this->getVarExport($value);
 
@@ -308,10 +323,8 @@ final class Cache implements CacheInterface
                 $handle,
                 mb_substr(
                     $export,
-                    $index,
-                    MAX_BYTES
-                ),
-                MAX_BYTES
+                    $index
+                )
             );
 
             if ($result === false) {
@@ -326,6 +339,10 @@ final class Cache implements CacheInterface
             $index += $result;
         } while ($index < $length);
 
+        $this->filterRegistry->remove(
+            Filter::FILTER_NAME,
+            $handle
+        );
         fclose($handle);
         return $export;
     }
