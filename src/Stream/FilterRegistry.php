@@ -32,6 +32,18 @@ class FilterRegistry
     private array $streams = [];
 
     /**
+     * @return void
+     */
+    public function __destruct()
+    {
+        /** @var resource $stream */
+        foreach ($this->streams as &$stream) {
+            stream_filter_remove($stream);
+            unset($stream);
+        }
+    }
+
+    /**
      * @param string $name
      * @param string|object $type
      * @return static
