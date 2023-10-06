@@ -36,10 +36,9 @@ class FilterRegistry
      */
     public function __destruct()
     {
-        /** @var resource $stream */
-        foreach ($this->streams as &$stream) {
-            stream_filter_remove($stream);
-            unset($stream);
+        /** @var string $filter */
+        foreach ($this->filters as $filter) {
+            $this->remove($filter);
         }
     }
 
