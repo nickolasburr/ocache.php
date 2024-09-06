@@ -2,16 +2,16 @@
 /**
  * Filter.php
  *
- * @package     VfsCache\Stream
- * @copyright   Copyright (C) 2023 Nickolas Burr <nickolasburr@gmail.com>
+ * @package     Ocache\Stream
+ * @copyright   Copyright (C) 2024 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
 
-namespace VfsCache\Stream;
+namespace Ocache\Stream;
 
+use Ocache\Stream\Filter\Buffer;
 use php_user_filter as AbstractFilter;
 use RuntimeException;
-use VfsCache\Stream\Filter\Buffer;
 
 use function mb_substr;
 use function stream_bucket_append;
@@ -20,11 +20,11 @@ use function stream_bucket_new;
 
 use const PSFS_FEED_ME;
 use const PSFS_PASS_ON;
-use const VfsCache\MAX_BYTES;
+use const Ocache\MAX_BYTES;
 
 class Filter extends AbstractFilter
 {
-    public const FILTER_NAME = 'vfscache.buffer';
+    public const FILTER_NAME = 'ocache.buffer';
 
     /** @var Buffer|null $buffer */
     private ?Buffer $buffer = null;
