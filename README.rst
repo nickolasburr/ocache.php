@@ -1,4 +1,4 @@
-vfscache
+ocache
 ========
 
 .. contents:: :local:
@@ -6,14 +6,14 @@ vfscache
 Description
 -----------
 
-VFS object cache for PHP.
+Virtual object cache for PHP.
 
 Installation
 ------------
 
 .. code-block:: sh
 
-   composer require nickolasburr/vfscache:^1.0
+   composer require nickolasburr/ocache:^1.0
 
 Examples
 --------
@@ -22,7 +22,7 @@ Examples
 
    ...
 
-   use function VfsCache\cache;
+   use function Ocache\cache;
 
    $cache = cache();
    $entry = $cache->get('example');

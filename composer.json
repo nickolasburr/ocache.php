@@ -1,6 +1,6 @@
 {
-  "name": "nickolasburr/vfscache",
-  "description": "VFS object cache for PHP.",
+  "name": "nickolasburr/ocache",
+  "description": "Virtual object cache for PHP.",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -21,7 +21,7 @@
         "src/Stream/functions.php"
     ],
     "psr-4": {
-      "VfsCache\\": "src/"
+      "Ocache\\": "src/"
     }
   }
 }

@@ -2,12 +2,12 @@
 /**
  * Buffer.php
  *
- * @package     VfsCache\Stream\Filter
- * @copyright   Copyright (C) 2023 Nickolas Burr <nickolasburr@gmail.com>
+ * @package     Ocache\Stream\Filter
+ * @copyright   Copyright (C) 2024 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
 
-namespace VfsCache\Stream\Filter;
+namespace Ocache\Stream\Filter;
 
 use Fiber;
 use Stringable;

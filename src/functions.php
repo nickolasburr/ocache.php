@@ -2,17 +2,17 @@
 /**
  * functions.php
  *
- * @package     VfsCache
- * @copyright   Copyright (C) 2023 Nickolas Burr <nickolasburr@gmail.com>
+ * @package     Ocache
+ * @copyright   Copyright (C) 2024 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
 
-namespace VfsCache;
+namespace Ocache;
 
 use function is_dir;
 use function mkdir;
 
-const CACHE_DIR = '/tmp/.vfscache';
+const CACHE_DIR = '/tmp/.ocache';
 const DIR_OCTAL = 0o700;
 const MAX_BYTES = 1024;
 const READ_ONLY = 'r';

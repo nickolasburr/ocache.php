@@ -2,14 +2,17 @@
 /**
  * Cache.php
  *
- * @package     VfsCache
- * @copyright   Copyright (C) 2023 Nickolas Burr <nickolasburr@gmail.com>
+ * @package     Ocache
+ * @copyright   Copyright (C) 2024 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
 
-namespace VfsCache;
+namespace Ocache;
 
 use DateInterval;
+use Ocache\Exception\InvalidArgumentException;
+use Ocache\Stream\Filter;
+use Ocache\Stream\FilterRegistry;
 use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -17,9 +20,6 @@ use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
-use VfsCache\Exception\InvalidArgumentException;
-use VfsCache\Stream\Filter;
-use VfsCache\Stream\FilterRegistry;
 
 use function array_keys;
 use function decoct;
@@ -35,12 +35,12 @@ use function mb_strlen;
 use function mb_substr;
 use function sprintf;
 use function unlink;
-use function VfsCache\Stream\filterRegistry;
+use function Ocache\Stream\filterRegistry;
 
 use const DIRECTORY_SEPARATOR;
 use const E_USER_WARNING;
 use const STREAM_FILTER_WRITE;
-use const VfsCache\Exception\E_TYPE;
+use const Ocache\Exception\E_TYPE;
 
 final class Cache implements CacheInterface
 {
