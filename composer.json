@@ -1,5 +1,5 @@
 {
-  "name": "nickolasburr/ocache",
+  "name": "nickolasburr/ocache.php",
   "description": "Virtual object cache for PHP.",
   "type": "library",
   "license": "MIT",

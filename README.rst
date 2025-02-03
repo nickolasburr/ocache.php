@@ -1,5 +1,5 @@
-ocache
-========
+ocache.php
+==========
 
 .. contents:: :local:
 
@@ -13,7 +13,7 @@ Installation
 
 .. code-block:: sh
 
-   composer require nickolasburr/ocache:^1.0
+   composer require nickolasburr/ocache.php:^1.0
 
 Examples
 --------
