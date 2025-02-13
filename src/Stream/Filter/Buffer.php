@@ -19,15 +19,11 @@ use function mb_strlen;
 
 final class Buffer implements Stringable
 {
-    /**
-     * @param string[] $buffer
-     * @param int $length
-     * @return void
-     */
-    public function __construct(
-        private array $buffer = [],
-        private int $length = 0
-    ) {}
+    /** @var string[] $buffer */
+    private array $buffer = [];
+
+    /** @var int $length */
+    private int $length = 0;
 
     /**
      * @return string[]
