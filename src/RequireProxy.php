@@ -14,6 +14,8 @@ use Ocache\Index\PathResolver;
 
 use function clearstatcache;
 use function is_file;
+use function restore_error_handler;
+use function set_error_handler;
 
 use const REQUIRE_PROXY_PATH;
 
@@ -59,6 +61,8 @@ final readonly class RequireProxy
     public function require(string $key): ?object
     {
         try {
+            set_error_handler($this->onError(...));
+
             /** @var string $path */
             $path = $this->pathResolver->resolve($key);
             return (static function () use ($path) {
@@ -66,6 +70,27 @@ final readonly class RequireProxy
             })();
         } catch (Throwable) {
             return null;
+        } finally {
+            restore_error_handler();
         }
+    }
+
+    /**
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int $errline
+     * @param mixed[] $errcontext
+     * @return bool
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    private function onError(
+        int $errno,
+        string $errstr,
+        string $errfile,
+        int $errline,
+        array $errcontext
+    ): bool {
+        return true;
     }
 }

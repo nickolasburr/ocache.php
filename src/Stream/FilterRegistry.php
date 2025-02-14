@@ -139,7 +139,7 @@ class FilterRegistry
                 throw new StreamFilterException(
                     $this->stringUtils->sprintf(
                         'Unable to append stream filter "%s" to resource; ' .
-                        'Call to stream_filter_append() failed when attempting '
+                        'Call to stream_filter_append() failed when attempting ' .
                         'to add the stream filter to stream resource "%s"',
                         $filter,
                         $rid

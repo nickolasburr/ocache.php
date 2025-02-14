@@ -145,10 +145,8 @@ final class Cache implements CacheInterface
         /** @var string[] $keys */
         $keys = array_keys($this->cache);
 
-        /** @var string $key */
-        foreach ($keys as $key) {
-            /** @var string $hash */
-            $hash = $this->hashProvider->hash($key);
+        /** @var string $hash */
+        foreach ($keys as $hash) {
             $this->storage->unlink($hash);
         }
 
