@@ -77,7 +77,7 @@ final readonly class ObjectExporter
         }
 
         $this->filterRegistry->append(
-            Filter::FILTER_NAME,
+            Filter::NAME,
             $handle,
             STREAM_FILTER_WRITE
         );
@@ -115,7 +115,7 @@ final readonly class ObjectExporter
         } while ($index < $length);
 
         $this->filterRegistry->remove(
-            Filter::FILTER_NAME,
+            Filter::NAME,
             $handle
         );
         fclose($handle);

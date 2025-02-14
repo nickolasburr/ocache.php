@@ -17,7 +17,7 @@ const PROTO_VFS = 'vfs';
  * @return FilterRegistry
  */
 function filterRegistry(
-    string $name = Filter::FILTER_NAME,
+    string $name = Filter::NAME,
     string|object $type = Filter::class
 ): FilterRegistry {
     static $registries;
