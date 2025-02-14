@@ -24,7 +24,7 @@ use const Ocache\MAX_BYTES;
 
 class Filter extends AbstractFilter
 {
-    public const FILTER_NAME = 'ocache.buffer';
+    public const NAME = 'ocache.buffer';
 
     /** @var Buffer|null $buffer */
     private ?Buffer $buffer = null;
@@ -34,7 +34,7 @@ class Filter extends AbstractFilter
      */
     public function onCreate(): bool
     {
-        return $this->filtername === static::FILTER_NAME;
+        return $this->filtername === static::NAME;
     }
 
     /**
