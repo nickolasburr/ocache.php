@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace Ocache\Stream;
 
 use Ocache\Exception\StreamFilterException;
+use Ocache\Utils\StringUtils;
 
 use function array_keys;
 use function array_map;
 use function get_resource_id;
 use function is_array;
 use function is_object;
-use function sprintf;
 use function stream_filter_append;
 use function stream_filter_register;
 use function stream_filter_remove;
@@ -30,6 +30,17 @@ class FilterRegistry
 
     /** @var mixed[] $streams */
     private array $streams = [];
+
+    /** @var StringUtils $stringUtils */
+    private readonly StringUtils $stringUtils;
+
+    /**
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->stringUtils = new StringUtils();
+    }
 
     /**
      * @return void
@@ -57,7 +68,7 @@ class FilterRegistry
 
         if (isset($filter)) {
             throw new StreamFilterException(
-                sprintf(
+                $this->stringUtils->sprintf(
                     'Unable to register stream filter "%s"; ' .
                     'Filter is already registered with "%s"',
                     $name,
@@ -71,7 +82,7 @@ class FilterRegistry
 
         if (!stream_filter_register($name, $filter)) {
             throw new StreamFilterException(
-                sprintf(
+                $this->stringUtils->sprintf(
                     'Unable to register stream filter "%s"; ' .
                     'Call to stream_filter_register() failed ' .
                     'when attempting to register class "%s"',
@@ -98,11 +109,12 @@ class FilterRegistry
     ): static {
         if (!isset($this->filters[$filter])) {
             throw new StreamFilterException(
-                sprintf(
+                $this->stringUtils->sprintf(
                     'Unable to append stream filter "%s" to resource; ' .
-                    'Stream filter is not registered. Call register() ' .
+                    'Stream filter is not registered. Call %s::register() ' .
                     'to add the stream filter to the filter registry',
-                    $filter
+                    $filter,
+                    __CLASS__
                 )
             );
         }
@@ -117,15 +129,24 @@ class FilterRegistry
 
         /** @var resource $handle */
         foreach ($resource as $handle) {
+            /** @var int $rid */
+            $rid = get_resource_id($handle);
+
             /** @var resource|false $stream */
             $stream = stream_filter_append($handle, $filter);
 
             if ($stream === false) {
-                throw new StreamFilterException();
+                throw new StreamFilterException(
+                    $this->stringUtils->sprintf(
+                        'Unable to append stream filter "%s" to resource; ' .
+                        'Call to stream_filter_append() failed when attempting '
+                        'to add the stream filter to stream resource "%s"',
+                        $filter,
+                        $rid
+                    )
+                );
             }
 
-            /** @var int $rid */
-            $rid = get_resource_id($handle);
             $streams[$rid] = $stream;
         }
 
