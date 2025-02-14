@@ -78,18 +78,18 @@ final readonly class RequireProxy
     /**
      * @param int $errno
      * @param string $errstr
-     * @param string $errfile
-     * @param int $errline
-     * @param mixed[] $errcontext
+     * @param string|null $errfile
+     * @param int|null $errline
+     * @param mixed[]|null $errcontext
      * @return bool
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function onError(
         int $errno,
         string $errstr,
-        string $errfile,
-        int $errline,
-        array $errcontext
+        ?string $errfile = null,
+        ?int $errline = null,
+        ?array $errcontext = null
     ): bool {
         return true;
     }
