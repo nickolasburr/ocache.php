@@ -9,29 +9,42 @@ declare(strict_types=1);
 
 namespace Ocache;
 
+use Closure;
 use Ocache\Cache\Config;
 use Ocache\Index\PathResolver;
+use Throwable;
 
 use function clearstatcache;
 use function is_file;
 use function restore_error_handler;
 use function set_error_handler;
+use function Ocache\Index\pathResolver;
 
 use const REQUIRE_PROXY_PATH;
 
 final readonly class RequireProxy
 {
+    /** @var Closure|null $errorHandler */
+    private ?Closure $errorHandler;
+
     /** @var PathResolver $pathResolver */
     private PathResolver $pathResolver;
 
     /**
      * @param Config $config
+     * @param callable|null $errorHandler
      * @return void
      */
     public function __construct(
-        private Config $config
+        private Config $config,
+        ?callable $errorHandler = null
     ) {
-        $this->pathResolver = new PathResolver($config);
+        $this->pathResolver = pathResolver($config);
+        $this->errorHandler = $errorHandler !== null
+            ? (
+                !$errorHandler instanceof Closure
+                    ? $errorHandler(...) : $errorHandler
+            ) : null;
     }
 
     /**
@@ -80,7 +93,6 @@ final readonly class RequireProxy
      * @param string $errstr
      * @param string|null $errfile
      * @param int|null $errline
-     * @param mixed[]|null $errcontext
      * @return bool
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -88,9 +100,16 @@ final readonly class RequireProxy
         int $errno,
         string $errstr,
         ?string $errfile = null,
-        ?int $errline = null,
-        ?array $errcontext = null
+        ?int $errline = null
     ): bool {
-        return true;
+        /** @var bool|null $result */
+        $result = $this->errorHandler
+            ? $this->errorHandler(
+                $errno,
+                $errstr,
+                $errfile,
+                $errline
+            ) : false;
+        return (bool) $result;
     }
 }
