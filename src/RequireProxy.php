@@ -94,7 +94,6 @@ final readonly class RequireProxy
      * @param string|null $errfile
      * @param int|null $errline
      * @return bool
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function onError(
         int $errno,
