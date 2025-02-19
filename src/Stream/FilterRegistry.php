@@ -114,7 +114,7 @@ class FilterRegistry
                     'Stream filter is not registered. Call %s::register() ' .
                     'to add the stream filter to the filter registry',
                     $filter,
-                    __CLASS__
+                    static::class
                 )
             );
         }
