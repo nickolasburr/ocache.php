@@ -2,7 +2,7 @@
 /**
  * ObjectExporter.php
  *
- * @package     Ocache\Sync
+ * @package     Ocache\VarExport
  * @copyright   Copyright (C) 2025 Nickolas Burr <nickolasburr@gmail.com>
  */
 declare(strict_types=1);
