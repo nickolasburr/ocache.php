@@ -20,6 +20,8 @@ use function restore_error_handler;
 use function set_error_handler;
 use function Ocache\Index\pathResolver;
 
+use const E_NOTICE;
+use const E_WARNING;
 use const REQUIRE_PROXY_PATH;
 
 final readonly class RequireProxy
@@ -33,11 +35,13 @@ final readonly class RequireProxy
     /**
      * @param Config $config
      * @param callable|null $errorHandler
+     * @param int $errorLevels
      * @return void
      */
     public function __construct(
         private Config $config,
-        ?callable $errorHandler = null
+        ?callable $errorHandler = null,
+        private int $errorLevels = E_WARNING | E_NOTICE
     ) {
         $this->pathResolver = pathResolver($config);
         $this->errorHandler = $errorHandler !== null
@@ -74,7 +78,10 @@ final readonly class RequireProxy
     public function require(string $key): ?object
     {
         try {
-            set_error_handler($this->onError(...));
+            set_error_handler(
+                $this->onError(...),
+                $this->errorLevels
+            );
 
             /** @var string $path */
             $path = $this->pathResolver->resolve($key);
