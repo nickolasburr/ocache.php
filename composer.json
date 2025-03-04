@@ -1,32 +1,35 @@
 {
-  "name": "nickolasburr/ocache.php",
-  "description": "Virtual object cache for PHP.",
-  "type": "library",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Nickolas Burr",
-      "email": "nickolasburr@gmail.com"
-    }
-  ],
-  "require": {
-    "php": "^8.2",
-    "psr/simple-cache": "^2.0||^3.0",
-    "symfony/var-exporter": "^7.2"
-  },
-  "autoload": {
-    "files": [
-        "src/constants.php",
-        "src/functions.php",
-        "src/Cache/functions.php",
-        "src/Exception/functions.php",
-        "src/Index/functions.php",
-        "src/Stream/functions.php",
-        "src/Utils/functions.php",
-        "src/VarExport/functions.php"
+    "name": "nickolasburr/ocache.php",
+    "description": "PSR-16 object cache for PHP.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nickolas Burr",
+            "email": "nickolasburr@gmail.com"
+        }
     ],
-    "psr-4": {
-      "Ocache\\": "src/"
+    "provide": {
+        "psr/simple-cache-implementation": "^2.0||^3.0"
+    },
+    "require": {
+        "php": "^8.2",
+        "psr/simple-cache": "^2.0||^3.0",
+        "symfony/var-exporter": "^7.2"
+    },
+    "autoload": {
+        "files": [
+            "src/constants.php",
+            "src/functions.php",
+            "src/Cache/functions.php",
+            "src/Exception/functions.php",
+            "src/Index/functions.php",
+            "src/Stream/functions.php",
+            "src/Utils/functions.php",
+            "src/VarExport/functions.php"
+        ],
+        "psr-4": {
+            "Ocache\\": "src/"
+        }
     }
-  }
 }

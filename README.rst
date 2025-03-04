@@ -6,7 +6,7 @@ ocache.php
 Description
 -----------
 
-Virtual object cache for PHP.
+PSR-16 object cache for PHP.
 
 Installation
 ------------
